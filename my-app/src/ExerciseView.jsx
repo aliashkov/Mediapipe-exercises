@@ -6,9 +6,6 @@ import './exerciseView.css'
 
 export default function ExerciseView() {
 
-
-
-
     const [points, setPoints] = useState([])
     const [snapshotPoints, setSnapshotPoints] = useState([])
 
@@ -33,15 +30,29 @@ export default function ExerciseView() {
         // Convert radians to degrees
         const angleInDegrees = (angleInRadians * 180) / Math.PI;
 
-        console.log(`The angle in degrees is: ${angleInDegrees}`);
         return angleInDegrees
 
     }
 
 
+    const calculateAverageAccuracy = (arr) => {
+
+        if (arr.length === 0) {
+            return 0; 
+        }
+
+        const sum = arr.reduce((acc, value) => acc + value, 0);
+
+        // Calculate the average
+        const average = sum / arr.length;
+
+        return average;
+    }
+
+
     useEffect(() => {
 
-        let connectionArray = [[11, 12], [11, 13]]
+        let connectionArray = [[11, 12], [11, 13], [13, 15], [15, 17], [12, 14], [14, 16], [16, 18]]
         let accuracyArray = []
 
         if (snapshotPoints.length > 0 && points.length > 0) {
@@ -50,17 +61,16 @@ export default function ExerciseView() {
 
                 let currentVectorDegree = calculateVectors(points, connectionArray[i])
                 let snapshotVectorDegree = calculateVectors(snapshotPoints, connectionArray[i])
-                console.log(currentVectorDegree, snapshotVectorDegree)
                 const differenceDegree = Math.abs(snapshotVectorDegree - currentVectorDegree)
                 accuracyArray.push(100 - differenceDegree)
-                
 
             }
 
         }
 
+        const averageAccuracy = calculateAverageAccuracy(accuracyArray);
 
-        console.log(accuracyArray)
+        console.log(`The average  accuracy is: ${averageAccuracy}`);
 
 
 
