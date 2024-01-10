@@ -1,0 +1,25 @@
+.container-canvas {
+    position: relative;
+    display: inline-block
+}
+
+
+.snapshotButton {
+    position: absolute;
+    right: 25px;
+    bottom: 25px;
+
+    box-shadow: 0.6068965792655945px 1.8206895589828491px 8.496551513671875px 0px #00000026;
+    background: linear-gradient(87.65deg, #43568F -4.12%, #4364BB 99.13%);
+    font-family: Inter;
+    font-size: 30px;
+    font-weight: 600;
+    line-height: 34px;
+    letter-spacing: 0.02em;
+    text-align: left;
+    color: #ffffff;
+    border-radius: 6px;
+
+
+
+}
