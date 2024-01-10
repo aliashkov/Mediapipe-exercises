@@ -3,24 +3,34 @@ import { Camera } from "@mediapipe/camera_utils";
 import mp from '@mediapipe/pose';
 import { drawConnectors, drawLandmarks } from "@mediapipe/drawing_utils";
 import './exerciseView.css'
+import { saveAs } from 'file-saver';
+
+const CONNECTION_ARRAY = [[11, 12], [11, 13], [13, 15], [15, 17], [12, 14], [14, 16], [16, 18]]
 
 export default function ExerciseView() {
 
-    const [points, setPoints] = useState([])
-    const [snapshotPoints, setSnapshotPoints] = useState([])
-
+    const [bodyPoints, setBodyPoints] = useState([])
+    const [exampleBodyPoints, setExampleBodyPoints] = useState([])
+    const similarityArray = []
 
     const drawPoints = () => {
-        setSnapshotPoints(points)
+        setExampleBodyPoints(bodyPoints)
+
+        const jsonString = JSON.stringify(bodyPoints, null, 2);
+
+        const blobFile = new Blob([jsonString], { type: 'application/json;charset=utf-8' });
+
+        saveAs(blobFile, 'bodyPoints.txt');
+
     }
 
-    const calculateVectors = (points, connectionArray) => {
+    const calculateVectors = (bodyPoints, connectionArray) => {
 
-        const x1 = points[connectionArray[0]].x
-        const x2 = points[connectionArray[1]].x
+        const x1 = bodyPoints[connectionArray[0]].x
+        const x2 = bodyPoints[connectionArray[1]].x
 
-        const y1 = points[connectionArray[0]].y
-        const y2 = points[connectionArray[1]].y
+        const y1 = bodyPoints[connectionArray[0]].y
+        const y2 = bodyPoints[connectionArray[1]].y
 
         const delta_x = x1 - x2
         const delta_y = y1 - y2
@@ -35,10 +45,10 @@ export default function ExerciseView() {
     }
 
 
-    const calculateAverageAccuracy = (arr) => {
+    const calculateAverageSimilarity = (arr) => {
 
         if (arr.length === 0) {
-            return 0; 
+            return 0;
         }
 
         const sum = arr.reduce((acc, value) => acc + value, 0);
@@ -49,35 +59,27 @@ export default function ExerciseView() {
         return average;
     }
 
-
     useEffect(() => {
 
-        let connectionArray = [[11, 12], [11, 13], [13, 15], [15, 17], [12, 14], [14, 16], [16, 18]]
-        let accuracyArray = []
+        if (exampleBodyPoints.length > 0 && bodyPoints.length > 0) {
 
-        if (snapshotPoints.length > 0 && points.length > 0) {
+            for (let i = 0; i < CONNECTION_ARRAY.length; i++) {
 
-            for (let i = 0; i < connectionArray.length; i++) {
-
-                let currentVectorDegree = calculateVectors(points, connectionArray[i])
-                let snapshotVectorDegree = calculateVectors(snapshotPoints, connectionArray[i])
-                const differenceDegree = Math.abs(snapshotVectorDegree - currentVectorDegree)
-                accuracyArray.push(100 - differenceDegree)
+                let bodyVectorDegree = calculateVectors(bodyPoints, CONNECTION_ARRAY[i])
+                let exampleVectorDegree = calculateVectors(exampleBodyPoints, CONNECTION_ARRAY[i])
+                const differenceDegree = Math.abs(exampleVectorDegree - bodyVectorDegree)
+                similarityArray.push(100 - differenceDegree)
 
             }
 
         }
 
-        const averageAccuracy = calculateAverageAccuracy(accuracyArray);
+        const similarityObjects = calculateAverageSimilarity(similarityArray);
 
-        console.log(`The average  accuracy is: ${averageAccuracy}`);
-
-
+        console.log(`The average  similarity between two poses: ${similarityObjects}`);
 
 
-    }, [snapshotPoints, points]);
-
-
+    }, [exampleBodyPoints, bodyPoints]);
 
 
     useEffect(() => {
@@ -95,9 +97,7 @@ export default function ExerciseView() {
             canvasCtx.drawImage(results.image, 0, 0, canvasElement.width, canvasElement.height);
             if (results.poseLandmarks) {
 
-                setPoints(results.poseLandmarks)
-
-
+                setBodyPoints(results.poseLandmarks)
 
                 drawConnectors(
                     canvasCtx,
@@ -148,13 +148,11 @@ export default function ExerciseView() {
 
             }
 
-
-            if (snapshotPoints) {
-
+            if (exampleBodyPoints) {
 
                 drawConnectors(
                     canvasCtx,
-                    snapshotPoints,
+                    exampleBodyPoints,
                     [[11, 12]
                         , [11, 13]
                         , [13, 15]
@@ -187,12 +185,12 @@ export default function ExerciseView() {
                         lineWidth: 3,
                     }
                 );
-                drawLandmarks(canvasCtx, snapshotPoints, {
+                drawLandmarks(canvasCtx, exampleBodyPoints, {
                     color: '#ff0000',
                     lineWidth: 0,
                     radius: 3,
                 });
-                drawLandmarks(canvasCtx, snapshotPoints, {
+                drawLandmarks(canvasCtx, bodyPoints, {
                     color: '#ff0000',
                     lineWidth: 3,
                     radius: 2,
@@ -200,9 +198,6 @@ export default function ExerciseView() {
 
 
             }
-
-
-
 
             canvasCtx.restore();
         }
@@ -230,9 +225,11 @@ export default function ExerciseView() {
             width: 1280,
             height: 720
         });
+
         camera.start();
         pose.onResults(onResults);
-    }, [snapshotPoints]);
+
+    }, [exampleBodyPoints]);
 
     return (
         <div className="container">
