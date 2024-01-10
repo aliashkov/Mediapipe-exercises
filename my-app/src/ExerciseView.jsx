@@ -6,12 +6,69 @@ import './exerciseView.css'
 
 export default function ExerciseView() {
 
+
+
+
+    const [points, setPoints] = useState([])
+    const [snapshotPoints, setSnapshotPoints] = useState([])
+
+
     const drawPoints = () => {
         setSnapshotPoints(points)
     }
 
-    const [points, setPoints] = useState([])
-    const [snapshotPoints , setSnapshotPoints] = useState([])
+    const calculateVectors = (points, connectionArray) => {
+
+        const x1 = points[connectionArray[0]].x
+        const x2 = points[connectionArray[1]].x
+
+        const y1 = points[connectionArray[0]].y
+        const y2 = points[connectionArray[1]].y
+
+        const delta_x = x1 - x2
+        const delta_y = y1 - y2
+
+        const angleInRadians = Math.atan2(delta_y, delta_x);
+
+        // Convert radians to degrees
+        const angleInDegrees = (angleInRadians * 180) / Math.PI;
+
+        console.log(`The angle in degrees is: ${angleInDegrees}`);
+        return angleInDegrees
+
+    }
+
+
+    useEffect(() => {
+
+        let connectionArray = [[11, 12], [11, 13]]
+        let accuracyArray = []
+
+        if (snapshotPoints.length > 0 && points.length > 0) {
+
+            for (let i = 0; i < connectionArray.length; i++) {
+
+                let currentVectorDegree = calculateVectors(points, connectionArray[i])
+                let snapshotVectorDegree = calculateVectors(snapshotPoints, connectionArray[i])
+                console.log(currentVectorDegree, snapshotVectorDegree)
+                const differenceDegree = Math.abs(snapshotVectorDegree - currentVectorDegree)
+                accuracyArray.push(100 - differenceDegree)
+                
+
+            }
+
+        }
+
+
+        console.log(accuracyArray)
+
+
+
+
+    }, [snapshotPoints, points]);
+
+
+
 
     useEffect(() => {
         const videoElement = document.getElementsByClassName("input_video")[0];
@@ -84,7 +141,7 @@ export default function ExerciseView() {
 
             if (snapshotPoints) {
 
-                
+
                 drawConnectors(
                     canvasCtx,
                     snapshotPoints,
@@ -154,7 +211,7 @@ export default function ExerciseView() {
             minDetectionConfidence: 0.5,
             minTrackingConfidence: 0.5,
         });
-        pose.onResults(onResults);
+
 
         const camera = new Camera(videoElement, {
             onFrame: async () => {
@@ -164,6 +221,7 @@ export default function ExerciseView() {
             height: 720
         });
         camera.start();
+        pose.onResults(onResults);
     }, [snapshotPoints]);
 
     return (
