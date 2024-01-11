@@ -10,11 +10,15 @@ const CONNECTION_ARRAY = [[11, 12], [11, 13], [13, 15], [15, 17], [12, 14], [14,
 
 export default function ExerciseGenerator() {
 
+    
+
     const [bodyPoints, setBodyPoints] = useState([])
     const [exampleBodyPoints, setExampleBodyPoints] = useState([])
     const similarityArray = []
 
     const drawPoints = () => {
+
+        setExampleBodyPoints(bodyPoints)
 
         const jsonString = JSON.stringify(bodyPoints, null, 2);
 
@@ -72,11 +76,13 @@ export default function ExerciseGenerator() {
 
             }
 
+            const similarityObjects = calculateAverageSimilarity(similarityArray);
+
+            console.log(`The average  similarity between two poses: ${similarityObjects}`);
+
         }
 
-        const similarityObjects = calculateAverageSimilarity(similarityArray);
 
-        console.log(`The average  similarity between two poses: ${similarityObjects}`);
 
 
     }, [exampleBodyPoints, bodyPoints]);

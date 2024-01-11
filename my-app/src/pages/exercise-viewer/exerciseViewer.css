@@ -1,17 +1,35 @@
-.container-canvas {
+html,
+body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    background: #403A3A;
+}
+
+.container:fullscreen {
+    background: #403A3A;
     position: relative;
+}
+
+.container:fullscreen {
+    background: #403A3A;
+    position: relative;
+}
+
+.container-canvas {
+    
     display: inline-block
 }
 
-
-.snapshotButton {
+.uploadButton {
+    cursor: pointer;
     position: absolute;
-    right: 25px;
-    bottom: 25px;
-
+    border: 0;
+    right: -20%;
+    bottom: -20%;
     box-shadow: 0.6068965792655945px 1.8206895589828491px 8.496551513671875px 0px #00000026;
     background: linear-gradient(87.65deg, #43568F -4.12%, #4364BB 99.13%);
-    font-family: Inter;
+    font-family: 'Inter';
     font-size: 30px;
     font-weight: 600;
     line-height: 34px;
@@ -19,7 +37,7 @@
     text-align: left;
     color: #ffffff;
     border-radius: 6px;
-
-
+    padding: 20px 70px;
 
 }
+
