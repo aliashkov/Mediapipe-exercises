@@ -17,11 +17,17 @@ body {
 }
 
 .container-canvas {
-    
+
     display: inline-block
 }
 
-.uploadButton {
+
+label.upload input[type="file"] {
+    position: absolute;
+    top: -10000px;
+}
+
+.upload{
     cursor: pointer;
     position: absolute;
     border: 0;
@@ -38,6 +44,4 @@ body {
     color: #ffffff;
     border-radius: 6px;
     padding: 20px 70px;
-
 }
-

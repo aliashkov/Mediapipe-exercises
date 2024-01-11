@@ -225,8 +225,6 @@ export default function ExerciseViewer() {
     }, []);
 
 
-    console.log(windowSize)
-
     const handleFile = () => {
 
     }
@@ -319,16 +317,26 @@ export default function ExerciseViewer() {
 
         canvasCtx.restore();
 
-    }, [exampleBodyPoints , windowSize]);
+    }, [exampleBodyPoints, windowSize]);
 
     return (
         <div className="container">
 
             <div className="container-canvas">
+
+
                 <canvas className="output_canvas" width={0.8 * windowSize[0]} height={0.8 * windowSize[1]}></canvas>
 
-                <button id="uploadButton" onClick={drawPoints} className="uploadButton">Upload</button>
-                <input type="file" style={{ display: 'none' }} />
+                <form action="/form/sumbit" method="get">
+
+                    <label class="upload">
+                        <input type="file" required />
+                        <span>Upload</span>
+                    </label>
+
+
+
+                </form>
 
             </div>
 
