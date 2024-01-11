@@ -31,7 +31,7 @@ export default function ExerciseViewer() {
                 console.log('JSON parsed:', jsonData);
                 console.log(jsonData[0].hasOwnProperty('x'))
                 if (isValidJsonFormat(jsonData)) {
-                    console.log('JSON is in the correct format:', jsonData);
+                    setExampleBodyPoints(jsonData)
                 } else {
                     alert('JSON does not match the expected format.');
                 }
@@ -43,18 +43,18 @@ export default function ExerciseViewer() {
 
     const readFileContent = (file) => {
         return new Promise((resolve, reject) => {
-          const reader = new FileReader();
-          reader.onload = (e) => resolve(e.target.result);
-          reader.onerror = (error) => reject(error);
-          reader.readAsText(file);
+            const reader = new FileReader();
+            reader.onload = (e) => resolve(e.target.result);
+            reader.onerror = (error) => reject(error);
+            reader.readAsText(file);
         });
-      };
-    
-      const isValidJsonFormat = (jsonData) => {
-  
+    };
 
-        return jsonData;
-      };
+    const isValidJsonFormat = (jsonData) => {
+
+        return (jsonData && jsonData.length === 33 &&
+            jsonData[0].hasOwnProperty('x') && jsonData[0].hasOwnProperty('y'));
+    };
 
     const calculateVectors = (bodyPoints, connectionArray) => {
 
