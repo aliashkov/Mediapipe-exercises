@@ -2,25 +2,25 @@ import { useEffect, useState } from "react";
 import { Camera } from "@mediapipe/camera_utils";
 import mp from '@mediapipe/pose';
 import { drawConnectors, drawLandmarks } from "@mediapipe/drawing_utils";
-import './exerciseView.css'
+import './exerciseGenerator.css'
 import { saveAs } from 'file-saver';
+import uuid from 'react-uuid';
 
 const CONNECTION_ARRAY = [[11, 12], [11, 13], [13, 15], [15, 17], [12, 14], [14, 16], [16, 18]]
 
-export default function ExerciseView() {
+export default function ExerciseGenerator() {
 
     const [bodyPoints, setBodyPoints] = useState([])
     const [exampleBodyPoints, setExampleBodyPoints] = useState([])
     const similarityArray = []
 
     const drawPoints = () => {
-        setExampleBodyPoints(bodyPoints)
 
         const jsonString = JSON.stringify(bodyPoints, null, 2);
 
         const blobFile = new Blob([jsonString], { type: 'application/json;charset=utf-8' });
 
-        saveAs(blobFile, 'bodyPoints.txt');
+        saveAs(blobFile, `${uuid()}.task`);
 
     }
 
@@ -141,57 +141,6 @@ export default function ExerciseView() {
                 });
                 drawLandmarks(canvasCtx, results.poseLandmarks, {
                     color: '#000000',
-                    lineWidth: 3,
-                    radius: 2,
-                });
-
-
-            }
-
-            if (exampleBodyPoints) {
-
-                drawConnectors(
-                    canvasCtx,
-                    exampleBodyPoints,
-                    [[11, 12]
-                        , [11, 13]
-                        , [13, 15]
-                        , [15, 17]
-                        , [15, 19]
-                        , [15, 21]
-                        , [17, 19]
-                        , [12, 14]
-                        , [14, 16]
-                        , [16, 18]
-                        , [16, 20]
-                        , [16, 22]
-                        , [18, 20]
-                        , [11, 23]
-                        , [12, 24]
-                        , [23, 24]
-                        , [23, 25]
-                        , [24, 26]
-                        , [25, 27]
-                        , [26, 28]
-                        , [27, 29]
-                        , [28, 30]
-                        , [29, 31]
-                        , [30, 32]
-                        , [27, 31]
-                        , [28, 32]
-                    ],
-                    {
-                        color: '#ff0000',
-                        lineWidth: 3,
-                    }
-                );
-                drawLandmarks(canvasCtx, exampleBodyPoints, {
-                    color: '#ff0000',
-                    lineWidth: 0,
-                    radius: 3,
-                });
-                drawLandmarks(canvasCtx, bodyPoints, {
-                    color: '#ff0000',
                     lineWidth: 3,
                     radius: 2,
                 });
