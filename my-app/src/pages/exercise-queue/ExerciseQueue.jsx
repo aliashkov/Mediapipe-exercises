@@ -16,6 +16,7 @@ export default function ExerciseQueue() {
     const [dataTasks, setDataTasks] = useState(null);
     const [queueTasks, setQueueTasks] = useState([])
     const [accuracyTask, setAccuracyTask] = useState(null)
+    const [displayResults, setDisplayResults] = useState(false)
     const similarityArray = []
     const counterRef = useRef(0);
     const poseInstanceRef = useRef(null);
@@ -92,14 +93,12 @@ export default function ExerciseQueue() {
 
                 console.log('This runs every 5 seconds');
 
-                console.log(accuracyTask)
-
                 setExampleBodyPoints(dataTasks[queueTasks[counterRef.current]])
 
                 counterRef.current += 1;
 
-                console.log(`The average  similarity between two poses: ${accuracyTask}`);
-
+                setDisplayResults(true)
+                
                 if (counterRef.current >= queueTasks.length) {
                     clearInterval(refreshExercise);
                 }
@@ -111,7 +110,7 @@ export default function ExerciseQueue() {
 
 
     useEffect(() => {
-        if (exampleBodyPoints && bodyPoints) {
+        if (exampleBodyPoints && bodyPoints && displayResults) {
             if (exampleBodyPoints.length > 0 && bodyPoints.length > 0) {
 
                 for (let i = 0; i < CONNECTION_ARRAY.length; i++) {
@@ -124,16 +123,16 @@ export default function ExerciseQueue() {
 
                 const similarityObjects = calculateAverageSimilarity(similarityArray);
 
+                console.log(`The average  similarity between two poses: ${similarityObjects}`);
+
                 setAccuracyTask(similarityObjects)
 
-                console.log(accuracyTask)
+                setDisplayResults(false)
 
             }
         }
 
-
-
-    }, [exampleBodyPoints, bodyPoints]);
+    }, [exampleBodyPoints, bodyPoints, counterRef]);
 
     useEffect(() => {
 
@@ -235,7 +234,6 @@ export default function ExerciseQueue() {
 
 
     }, [exampleBodyPoints]);
-
 
     return (
         <div className="container">
