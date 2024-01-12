@@ -1,0 +1,22 @@
+html,
+body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    background: #403A3A;
+}
+
+.container:fullscreen {
+    background: #403A3A;
+    position: relative;
+}
+
+.container:fullscreen {
+    background: #403A3A;
+    position: relative;
+}
+
+.container-canvas {
+
+    display: inline-block
+}

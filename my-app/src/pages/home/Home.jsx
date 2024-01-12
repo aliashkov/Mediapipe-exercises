@@ -7,11 +7,15 @@ const Home = () => {
     const navigate = useNavigate(); 
 
     const navigateToViewer = () => {
-        navigate('/exercise-generator');
+        navigate('/exercise-viewer');
     }
 
     const navigateToGenerator = () => {
         navigate('/exercise-generator');
+    }
+
+    const navigateToQueeeTasks = () => {
+        navigate('/exercise-queee');
     }
 
     return (
@@ -19,6 +23,7 @@ const Home = () => {
             <div className='button-container'>
                 <button onClick={navigateToViewer}>navigate To Viewer</button>
                 <button onClick={navigateToGenerator}>navigate To Generator</button>
+                <button onClick={navigateToQueeeTasks}>navigate To Queee</button>
             </div>
 
         </>
