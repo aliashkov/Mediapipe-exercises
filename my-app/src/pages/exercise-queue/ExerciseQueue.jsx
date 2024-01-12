@@ -16,6 +16,7 @@ export default function ExerciseQueue() {
     const [dataTasks, setDataTasks] = useState(null);
     const [queueTasks, setQueueTasks] = useState([])
     const [accuracyTask, setAccuracyTask] = useState(null)
+
     const [displayResults, setDisplayResults] = useState(false)
     const similarityArray = []
     const counterRef = useRef(0);
@@ -110,7 +111,7 @@ export default function ExerciseQueue() {
 
 
     useEffect(() => {
-        if (exampleBodyPoints && bodyPoints && displayResults) {
+        if (exampleBodyPoints && bodyPoints) {
             if (exampleBodyPoints.length > 0 && bodyPoints.length > 0) {
 
                 for (let i = 0; i < CONNECTION_ARRAY.length; i++) {
@@ -123,7 +124,12 @@ export default function ExerciseQueue() {
 
                 const similarityObjects = calculateAverageSimilarity(similarityArray);
 
-                console.log(`The average  similarity between two poses: ${similarityObjects}`);
+  
+                if (displayResults && accuracyTask) {
+                    console.log('=======================================================');
+                    console.log(`The average  similarity between two poses: ${accuracyTask}`);
+                }
+
 
                 setAccuracyTask(similarityObjects)
 
@@ -132,7 +138,7 @@ export default function ExerciseQueue() {
             }
         }
 
-    }, [exampleBodyPoints, bodyPoints, counterRef]);
+    }, [exampleBodyPoints, bodyPoints, counterRef, accuracyTask]);
 
     useEffect(() => {
 
