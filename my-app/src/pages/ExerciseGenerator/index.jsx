@@ -1,10 +1,12 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Camera } from "@mediapipe/camera_utils";
 import mp from '@mediapipe/pose';
 import { drawConnectors, drawLandmarks } from "@mediapipe/drawing_utils";
 import './exerciseGenerator.css'
 import { saveAs } from 'file-saver';
 import uuid from 'react-uuid';
+import { calculateVectors } from "../../utils/calculateVectors";
+import { calculateAverageSimilarity } from "../../utils/calculateAverageSimilarity";
 
 const CONNECTION_ARRAY = [[11, 12], [11, 13], [13, 15], [15, 17], [12, 14], [14, 16], [16, 18]]
 
@@ -14,6 +16,7 @@ export default function ExerciseGenerator() {
 
     const [bodyPoints, setBodyPoints] = useState([])
     const [exampleBodyPoints, setExampleBodyPoints] = useState([])
+    const poseInstanceRef = useRef(null);
     const similarityArray = []
 
     const drawPoints = () => {
@@ -26,41 +29,6 @@ export default function ExerciseGenerator() {
 
         saveAs(blobFile, `${uuid()}.task`);
 
-    }
-
-    const calculateVectors = (bodyPoints, connectionArray) => {
-
-        const x1 = bodyPoints[connectionArray[0]].x
-        const x2 = bodyPoints[connectionArray[1]].x
-
-        const y1 = bodyPoints[connectionArray[0]].y
-        const y2 = bodyPoints[connectionArray[1]].y
-
-        const delta_x = x1 - x2
-        const delta_y = y1 - y2
-
-        const angleInRadians = Math.atan2(delta_y, delta_x);
-
-        // Convert radians to degrees
-        const angleInDegrees = (angleInRadians * 180) / Math.PI;
-
-        return angleInDegrees
-
-    }
-
-
-    const calculateAverageSimilarity = (arr) => {
-
-        if (arr.length === 0) {
-            return 0;
-        }
-
-        const sum = arr.reduce((acc, value) => acc + value, 0);
-
-        // Calculate the average
-        const average = sum / arr.length;
-
-        return average;
     }
 
     useEffect(() => {
@@ -82,13 +50,11 @@ export default function ExerciseGenerator() {
 
         }
 
-
-
-
     }, [exampleBodyPoints, bodyPoints]);
 
 
     useEffect(() => {
+
         const videoElement = document.getElementsByClassName("input_video")[0];
         const canvasElement = document.getElementsByClassName("output_canvas")[0];
         const canvasCtx = canvasElement.getContext("2d");
@@ -97,13 +63,14 @@ export default function ExerciseGenerator() {
             if (!canvasCtx) {
                 return;
             }
-
-            canvasCtx.save();
-            canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
-            canvasCtx.drawImage(results.image, 0, 0, canvasElement.width, canvasElement.height);
+            setBodyPoints(results.poseLandmarks)
+            console.log(results)
             if (results.poseLandmarks) {
+                canvasCtx.save();
+                canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
 
-                setBodyPoints(results.poseLandmarks)
+                canvasCtx.drawImage(results.image, 0, 0, canvasElement.width, canvasElement.height);
+
 
                 drawConnectors(
                     canvasCtx,
@@ -136,53 +103,54 @@ export default function ExerciseGenerator() {
                         , [28, 32]
                     ],
                     {
-                        color: '#FFFFFF',
+                        color: '#ffffff',
                         lineWidth: 3,
                     }
                 );
-                drawLandmarks(canvasCtx, results.poseLandmarks, {
-                    color: 'rgba(255, 255, 255, 0.6)',
+                drawLandmarks(canvasCtx, exampleBodyPoints, {
+                    color: '#ffffff',
                     lineWidth: 0,
                     radius: 3,
                 });
-                drawLandmarks(canvasCtx, results.poseLandmarks, {
-                    color: '#000000',
+                drawLandmarks(canvasCtx, exampleBodyPoints, {
+                    color: '#ffffff',
                     lineWidth: 3,
                     radius: 2,
                 });
-
 
             }
 
             canvasCtx.restore();
         }
 
-        const pose = new mp.Pose({
-            locateFile: (file) => {
-                return `https://cdn.jsdelivr.net/npm/@mediapipe/pose@${mp.VERSION}/${file}`;
-            },
-        });
-        pose.setOptions({
-            selfieMode: true,
-            modelComplexity: 1,
-            smoothLandmarks: true,
-            enableSegmentation: true,
-            smoothSegmentation: true,
-            minDetectionConfidence: 0.5,
-            minTrackingConfidence: 0.5,
-        });
-
+        if (!poseInstanceRef.current) {
+            poseInstanceRef.current = new mp.Pose({
+                locateFile: (file) => {
+                    return `https://cdn.jsdelivr.net/npm/@mediapipe/pose@${mp.VERSION}/${file}`;
+                },
+            });
+            poseInstanceRef.current.setOptions({
+                selfieMode: true,
+                modelComplexity: 1,
+                smoothLandmarks: true,
+                enableSegmentation: true,
+                smoothSegmentation: true,
+                minDetectionConfidence: 0.5,
+                minTrackingConfidence: 0.5,
+            });
+        }
 
         const camera = new Camera(videoElement, {
             onFrame: async () => {
-                await pose.send({ image: videoElement });
+                await poseInstanceRef.current.send({ image: videoElement });
             },
             width: 1280,
             height: 720
         });
 
         camera.start();
-        pose.onResults(onResults);
+        poseInstanceRef.current.onResults(onResults);
+
 
     }, [exampleBodyPoints]);
 

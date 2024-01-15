@@ -1,7 +1,6 @@
 import React from 'react';
 import { useNavigate } from "react-router-dom";
 
-
 const Home = () => {
 
     const navigate = useNavigate(); 
@@ -15,7 +14,7 @@ const Home = () => {
     }
 
     const navigateToQueeeTasks = () => {
-        navigate('/exercise-queee');
+        navigate('/exercise-queue');
     }
 
     return (

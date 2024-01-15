@@ -4,10 +4,12 @@ import mp from '@mediapipe/pose';
 import { drawConnectors, drawLandmarks } from "@mediapipe/drawing_utils";
 import './exerciseQueue.css'
 import jsonTasks from '../../tasks/exercises.json';
-
+import { calculateVectors } from "../../utils/calculateVectors";
+import { calculateAverageSimilarity } from "../../utils/calculateAverageSimilarity";
 
 const CONNECTION_ARRAY = [[11, 12], [11, 13], [13, 15], [15, 17], [12, 14], [14, 16], [16, 18]]
 const DELAY_TASKS = 5000
+const INITIAL_ACCURACY = 100
 
 export default function ExerciseQueue() {
 
@@ -16,47 +18,12 @@ export default function ExerciseQueue() {
     const [dataTasks, setDataTasks] = useState(null);
     const [queueTasks, setQueueTasks] = useState([])
     const [accuracyTask, setAccuracyTask] = useState(null)
+    const [isExerciseFinished, setIsExerciseFinished] = useState(false)
 
     const [displayResults, setDisplayResults] = useState(false)
     const similarityArray = []
     const counterRef = useRef(0);
     const poseInstanceRef = useRef(null);
-
-
-    const calculateVectors = (bodyPoints, connectionArray) => {
-
-        const x1 = bodyPoints[connectionArray[0]].x
-        const x2 = bodyPoints[connectionArray[1]].x
-
-        const y1 = bodyPoints[connectionArray[0]].y
-        const y2 = bodyPoints[connectionArray[1]].y
-
-        const delta_x = x1 - x2
-        const delta_y = y1 - y2
-
-        const angleInRadians = Math.atan2(delta_y, delta_x);
-
-        // Convert radians to degrees
-        const angleInDegrees = (angleInRadians * 180) / Math.PI;
-
-        return angleInDegrees
-
-    }
-
-    const calculateAverageSimilarity = (arr) => {
-
-        if (arr.length === 0) {
-            return 0;
-        }
-
-        const sum = arr.reduce((acc, value) => acc + value, 0);
-
-        // Calculate the average
-        const average = sum / arr.length;
-
-        return average;
-
-    }
 
     const shuffleIndexes = (jsonData) => {
         const indices = Array.from({ length: jsonData.length }, (_, index) => index);
@@ -92,17 +59,23 @@ export default function ExerciseQueue() {
         if (queueTasks && dataTasks) {
             const refreshExercise = setInterval(() => {
 
-                console.log('This runs every 5 seconds');
+                try {
+                    if (counterRef.current < queueTasks.length) {
 
-                setExampleBodyPoints(dataTasks[queueTasks[counterRef.current]])
+                        setExampleBodyPoints(dataTasks[queueTasks[counterRef.current]])
 
-                counterRef.current += 1;
+                        counterRef.current += 1;
 
-                setDisplayResults(true)
-                
-                if (counterRef.current >= queueTasks.length) {
-                    clearInterval(refreshExercise);
+                        setDisplayResults(true)
+
+                        if (counterRef.current >= queueTasks.length) {
+                            clearInterval(refreshExercise);
+                        }
+                    }
+                } catch (error) {
+
                 }
+
             }, DELAY_TASKS);
             return () => clearInterval(refreshExercise);
         }
@@ -111,31 +84,45 @@ export default function ExerciseQueue() {
 
 
     useEffect(() => {
-        if (exampleBodyPoints && bodyPoints) {
-            if (exampleBodyPoints.length > 0 && bodyPoints.length > 0) {
 
-                for (let i = 0; i < CONNECTION_ARRAY.length; i++) {
+        try {
+            if (exampleBodyPoints && bodyPoints) {
+                if (exampleBodyPoints.length > 0 && bodyPoints.length > 0) {
 
-                    let bodyVectorDegree = calculateVectors(bodyPoints, CONNECTION_ARRAY[i])
-                    let exampleVectorDegree = calculateVectors(exampleBodyPoints, CONNECTION_ARRAY[i])
-                    const differenceDegree = Math.abs(exampleVectorDegree - bodyVectorDegree)
-                    similarityArray.push(100 - differenceDegree)
+                    for (let i = 0; i < CONNECTION_ARRAY.length; i++) {
+
+                        let bodyVectorDegree = calculateVectors(bodyPoints, CONNECTION_ARRAY[i])
+                        let exampleVectorDegree = calculateVectors(exampleBodyPoints, CONNECTION_ARRAY[i])
+                        const differenceDegree = Math.abs(exampleVectorDegree - bodyVectorDegree)
+                        similarityArray.push(INITIAL_ACCURACY - differenceDegree)
+                    }
+
+                    const similarityObjects = calculateAverageSimilarity(similarityArray);
+
+
+                    if (displayResults && accuracyTask) {
+                        console.log('=======================================================');
+                        console.log(`The average  similarity between two poses: ${accuracyTask}`);
+                    }
+                    else if (counterRef.current === queueTasks.length && !isExerciseFinished) {
+                        setIsExerciseFinished(true)
+                        const lastExerciseTimeout = setTimeout(() => {
+                            console.log('=======================================================');
+                            console.log(`The average  similarity between two poses: ${accuracyTask}`);
+                            setExampleBodyPoints([])
+
+                        }, DELAY_TASKS);
+                    }
+
+
+                    setAccuracyTask(similarityObjects)
+
+                    setDisplayResults(false)
+
                 }
-
-                const similarityObjects = calculateAverageSimilarity(similarityArray);
-
-  
-                if (displayResults && accuracyTask) {
-                    console.log('=======================================================');
-                    console.log(`The average  similarity between two poses: ${accuracyTask}`);
-                }
-
-
-                setAccuracyTask(similarityObjects)
-
-                setDisplayResults(false)
-
             }
+        } catch (error) {
+
         }
 
     }, [exampleBodyPoints, bodyPoints, counterRef, accuracyTask]);
