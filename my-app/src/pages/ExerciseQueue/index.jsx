@@ -19,11 +19,14 @@ export default function ExerciseQueue() {
     const [queueTasks, setQueueTasks] = useState([])
     const [accuracyTask, setAccuracyTask] = useState(null)
     const [isExerciseFinished, setIsExerciseFinished] = useState(false)
+    const [arrayAccuracy , setArrayAccuracy] = useState([])
+
 
     const [displayResults, setDisplayResults] = useState(false)
     const similarityArray = []
     const counterRef = useRef(0);
     const poseInstanceRef = useRef(null);
+
 
     const shuffleIndexes = (jsonData) => {
         const indices = Array.from({ length: jsonData.length }, (_, index) => index);
@@ -88,45 +91,46 @@ export default function ExerciseQueue() {
         try {
             if (exampleBodyPoints && bodyPoints) {
                 if (exampleBodyPoints.length > 0 && bodyPoints.length > 0) {
-
                     for (let i = 0; i < CONNECTION_ARRAY.length; i++) {
 
                         let bodyVectorDegree = calculateVectors(bodyPoints, CONNECTION_ARRAY[i])
                         
-
                         let exampleVectorDegree = calculateVectors(exampleBodyPoints, CONNECTION_ARRAY[i])
-
-                        
 
                         const differenceDegree = Math.abs(exampleVectorDegree - bodyVectorDegree)
 
                         similarityArray.push(INITIAL_ACCURACY - differenceDegree)
                     }          
                           
-
                     const similarityObjects = calculateAverageSimilarity(similarityArray);
 
                     if (displayResults && accuracyTask) {
                         console.log('=======================================================');
                         console.log(`The average  similarity between two poses: ${accuracyTask}`);
+                        setArrayAccuracy([...arrayAccuracy , accuracyTask])
                     }
                     else if (counterRef.current === queueTasks.length && !isExerciseFinished) {
                         setIsExerciseFinished(true)
                         const lastExerciseTimeout = setTimeout(() => {
-                            console.log('=======================================================');
-                            console.log(`The average  similarity between two poses: ${accuracyTask}`);
                             setExampleBodyPoints([])
 
                         }, DELAY_TASKS);
                     }
-
 
                     setAccuracyTask(similarityObjects)
 
                     setDisplayResults(false)
 
                 }
+                else if (accuracyTask && isExerciseFinished) {
+                    setIsExerciseFinished(false)
+                    console.log('=======================================================');
+                    console.log(`The average  similarity between two poses: ${accuracyTask}`);
+                    setArrayAccuracy([...arrayAccuracy , accuracyTask])
+                }
             }
+
+           
         } catch (error) {
 
         }
