@@ -92,13 +92,19 @@ export default function ExerciseQueue() {
                     for (let i = 0; i < CONNECTION_ARRAY.length; i++) {
 
                         let bodyVectorDegree = calculateVectors(bodyPoints, CONNECTION_ARRAY[i])
+                        
+
                         let exampleVectorDegree = calculateVectors(exampleBodyPoints, CONNECTION_ARRAY[i])
+
+                        
+
                         const differenceDegree = Math.abs(exampleVectorDegree - bodyVectorDegree)
+
                         similarityArray.push(INITIAL_ACCURACY - differenceDegree)
-                    }
+                    }          
+                          
 
                     const similarityObjects = calculateAverageSimilarity(similarityArray);
-
 
                     if (displayResults && accuracyTask) {
                         console.log('=======================================================');
@@ -139,11 +145,66 @@ export default function ExerciseQueue() {
             }
             setBodyPoints(results.poseLandmarks)
 
-            if (exampleBodyPoints) {
-                canvasCtx.save();
-                canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
+            canvasCtx.save();
+            canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
 
-                canvasCtx.drawImage(results.image, 0, 0, canvasElement.width, canvasElement.height);
+            canvasCtx.drawImage(results.image, 0, 0, canvasElement.width, canvasElement.height);
+
+            if (results.poseLandmarks) {
+
+                drawConnectors(
+                    canvasCtx,
+                    results.poseLandmarks,
+                    [[11, 12]
+                        , [11, 13]
+                        , [13, 15]
+                        , [15, 17]
+                        , [15, 19]
+                        , [15, 21]
+                        , [17, 19]
+                        , [12, 14]
+                        , [14, 16]
+                        , [16, 18]
+                        , [16, 20]
+                        , [16, 22]
+                        , [18, 20]
+                        , [11, 23]
+                        , [12, 24]
+                        , [23, 24]
+                        , [23, 25]
+                        , [24, 26]
+                        , [25, 27]
+                        , [26, 28]
+                        , [27, 29]
+                        , [28, 30]
+                        , [29, 31]
+                        , [30, 32]
+                        , [27, 31]
+                        , [28, 32]
+                    ],
+                    {
+                        color: '#ffffff',
+                        lineWidth: 3,
+                    }
+                );
+                drawLandmarks(canvasCtx, results.poseLandmarks, {
+                    color: '#ffffff',
+                    lineWidth: 0,
+                    radius: 3,
+                });
+                drawLandmarks(canvasCtx, results.poseLandmarks, {
+                    color: '#ffffff',
+                    lineWidth: 3,
+                    radius: 2,
+                });
+
+            }
+
+            canvasCtx.restore();
+        
+            
+
+            if (exampleBodyPoints) {
 
 
                 drawConnectors(

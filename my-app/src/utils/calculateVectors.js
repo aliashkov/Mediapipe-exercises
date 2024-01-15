@@ -9,11 +9,17 @@ export const calculateVectors = (bodyPoints, connectionArray) => {
     const delta_x = x1 - x2
     const delta_y = y1 - y2
 
-    const angleInRadians = Math.atan2(delta_y, delta_x);
+    // Calculate the angle in radians
+    let angleInRadians = Math.atan2(delta_y, delta_x);
+
+    // Normalize the angle to be between -180 and 180 degrees
+    angleInRadians = ((angleInRadians + Math.PI) % (2 * Math.PI)) - Math.PI;
 
     // Convert radians to degrees
     const angleInDegrees = (angleInRadians * 180) / Math.PI;
 
-    return angleInDegrees
-
+    
+    return Math.abs(angleInDegrees)
+    
+   
 }
