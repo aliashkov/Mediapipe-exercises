@@ -3,7 +3,7 @@ import { Camera } from "@mediapipe/camera_utils";
 import mp from '@mediapipe/pose';
 import { drawConnectors, drawLandmarks } from "@mediapipe/drawing_utils";
 import './exerciseQueue.css'
-import jsonTasks from '../../tasks/exercises.json';
+import jsonTasks from '../../tasks/exercises2.json';
 import { calculateVectors } from "../../utils/calculateVectors";
 import { calculateAverageSimilarity } from "../../utils/calculateAverageSimilarity";
 
@@ -65,8 +65,10 @@ export default function ExerciseQueue() {
                 try {
                     if (counterRef.current < queueTasks.length) {
 
-                        setExampleBodyPoints(dataTasks[queueTasks[counterRef.current]])
+                        //setExampleBodyPoints(dataTasks[queueTasks[counterRef.current]])
 
+                        //WITHOUT SHUFFLE 
+                        setExampleBodyPoints(dataTasks[counterRef.current])
                         counterRef.current += 1;
 
                         setDisplayResults(true)
@@ -154,62 +156,7 @@ export default function ExerciseQueue() {
 
             canvasCtx.drawImage(results.image, 0, 0, canvasElement.width, canvasElement.height);
 
-            if (results.poseLandmarks) {
-
-                drawConnectors(
-                    canvasCtx,
-                    results.poseLandmarks,
-                    [[11, 12]
-                        , [11, 13]
-                        , [13, 15]
-                        , [15, 17]
-                        , [15, 19]
-                        , [15, 21]
-                        , [17, 19]
-                        , [12, 14]
-                        , [14, 16]
-                        , [16, 18]
-                        , [16, 20]
-                        , [16, 22]
-                        , [18, 20]
-                        , [11, 23]
-                        , [12, 24]
-                        , [23, 24]
-                        , [23, 25]
-                        , [24, 26]
-                        , [25, 27]
-                        , [26, 28]
-                        , [27, 29]
-                        , [28, 30]
-                        , [29, 31]
-                        , [30, 32]
-                        , [27, 31]
-                        , [28, 32]
-                    ],
-                    {
-                        color: '#ffffff',
-                        lineWidth: 3,
-                    }
-                );
-                drawLandmarks(canvasCtx, results.poseLandmarks, {
-                    color: '#ffffff',
-                    lineWidth: 0,
-                    radius: 3,
-                });
-                drawLandmarks(canvasCtx, results.poseLandmarks, {
-                    color: '#ffffff',
-                    lineWidth: 3,
-                    radius: 2,
-                });
-
-            }
-
-            canvasCtx.restore();
-        
-            
-
             if (exampleBodyPoints) {
-
 
                 drawConnectors(
                     canvasCtx,

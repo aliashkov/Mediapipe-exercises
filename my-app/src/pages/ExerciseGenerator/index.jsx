@@ -12,7 +12,7 @@ const CONNECTION_ARRAY = [[11, 12], [11, 13], [13, 15], [15, 17], [12, 14], [14,
 
 export default function ExerciseGenerator() {
 
-    
+
 
     const [bodyPoints, setBodyPoints] = useState([])
     const [exampleBodyPoints, setExampleBodyPoints] = useState([])
@@ -32,23 +32,26 @@ export default function ExerciseGenerator() {
     }
 
     useEffect(() => {
+        if (exampleBodyPoints && bodyPoints) {
+            if (exampleBodyPoints.length > 0 && bodyPoints.length > 0) {
 
-        if (exampleBodyPoints.length > 0 && bodyPoints.length > 0) {
+                for (let i = 0; i < CONNECTION_ARRAY.length; i++) {
 
-            for (let i = 0; i < CONNECTION_ARRAY.length; i++) {
+                    let bodyVectorDegree = calculateVectors(bodyPoints, CONNECTION_ARRAY[i])
+                    let exampleVectorDegree = calculateVectors(exampleBodyPoints, CONNECTION_ARRAY[i])
+                    const differenceDegree = Math.abs(exampleVectorDegree - bodyVectorDegree)
+                    similarityArray.push(100 - differenceDegree)
 
-                let bodyVectorDegree = calculateVectors(bodyPoints, CONNECTION_ARRAY[i])
-                let exampleVectorDegree = calculateVectors(exampleBodyPoints, CONNECTION_ARRAY[i])
-                const differenceDegree = Math.abs(exampleVectorDegree - bodyVectorDegree)
-                similarityArray.push(100 - differenceDegree)
+                }
+
+                const similarityObjects = calculateAverageSimilarity(similarityArray);
+
+                console.log(`The average  similarity between two poses: ${similarityObjects}`);
 
             }
-
-            const similarityObjects = calculateAverageSimilarity(similarityArray);
-
-            console.log(`The average  similarity between two poses: ${similarityObjects}`);
-
         }
+
+
 
     }, [exampleBodyPoints, bodyPoints]);
 
@@ -64,7 +67,6 @@ export default function ExerciseGenerator() {
                 return;
             }
             setBodyPoints(results.poseLandmarks)
-            console.log(results)
             if (results.poseLandmarks) {
                 canvasCtx.save();
                 canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
